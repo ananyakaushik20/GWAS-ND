@@ -1,7 +1,7 @@
 
 ###GRS versus disease status
 
-%%R
+R
 
 # Download the necessary packages 
 if (!require(tidyverse)) install.packages('tidyr')
@@ -22,17 +22,18 @@ library(ggplot2)
 library(plotROC)
 library(caret)
 
+q()
+
 
 ### Calculate Score in cases versus controls ## toPRS_training_Alzheimer* contain Parkinson disease inviduals for which I have extracted AD related variants
-! ./plink --bfile toPRS_training_Parkinson --score SCORE_PD.txt --out GRS_PD_test
+plink --bfile toPRS_training_Parkinson --score SCORE_PD.txt --out GRS_PD_test
 
-! head SCORE_PD.txt
-! head test_covs.txt
+head SCORE_PD.txt
+head test_covs.txt
 
 ### Normalize Score to Z-Score 
 
-%%R
-
+R
 temp_data <- read.table("GRS_PD_test.profile", header = T) 
 temp_covs <- read.table("test_covs.txt", header = T)
 data <- merge(temp_data, temp_covs, by = "FID")
@@ -43,18 +44,18 @@ data$zSCORE <- (data$SCORE - meanControls)/sdControls
 grsTests <- glm(CASE ~ zSCORE + SEX + PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10 + AAO, family="binomial", data = data)
 summary(grsTests)
 
-%%R # log(OR) = beta value
+R # log(OR) = beta value
 
 OR <- exp(0.5167042)
 OR
-
+q()
 
 ## 3. GRS versus age at onset
 #explore if genetic markers are associated with an earlier age an onset in Parkinson's disease
 
 ### Extract cases and normalize scores
 
-%%R
+R
 temp_data <- read.table("GRS_PD_test.profile", header = T)
 temp_covs <- read.table("test_covs.txt", header = T)
 data <- merge(temp_data, temp_covs, by = "FID")
@@ -65,7 +66,7 @@ sdPop <- sd(cases$SCORE)
 cases$zSCORE <- (cases$SCORE - meanPop)/sdPop
 grsTests <- lm(AAO ~ zSCORE + SEX + PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10, data = cases)
 summary(grsTests)
-
+q()
 
 ## 4. Genetic correlations between Parkinson and Alzheimer's disease.
 
@@ -77,7 +78,7 @@ summary(grsTests)
 
 ### Normalize Score to Z-Score 
 
-%%R
+R
 
 temp_data <- read.table("GRS_AD_test.profile", header = T) 
 temp_covs <- read.table("test_covs.txt", header = T)
@@ -89,16 +90,16 @@ data$zSCORE <- (data$SCORE - meanControls)/sdControls
 grsTests <- glm(CASE ~ zSCORE + SEX + PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10 + AAO, family="binomial", data = data)
 summary(grsTests)
 
-%%R
-
 OR <- exp(8.756e-02)
 OR
+
+q()
 
 ## Create Violin Plot
 
 ##make a violin plot assigning my variables case-control
 
-%%R
+R
 
 temp_data <- read.table("GRS_PD_test.profile", header = T)
 temp_covs <- read.table("test_covs.txt", header = T)
@@ -117,12 +118,13 @@ p2 <- p+geom_boxplot(width=0.4, fill="white" ) + theme_minimal()
 p2 + scale_fill_manual(values=c("lightblue", "orange")) + theme_bw() + ylab("PD GRS (Z-transformed)") +xlab("") + theme(legend.position = "none")
 ggsave("PD_GRS.jpeg", dpi = 600, units = "in", height = 6, width = 6)
 
+q()
 
 ## Create quantile plots
 
 ## Make quantiles
 
-%%R
+R
 
 temp_data <- read.table("GRS_PD_test.profile", header = T)
 temp_covs <- read.table("test_covs.txt", header = T)
@@ -161,12 +163,13 @@ to_plot$high <- to_plot$BETA + (1.96*to_plot$SE)
 plotted <- ggplot(to_plot, aes(QUANTILE, BETA)) + geom_pointrange(aes(ymin = low, ymax = high))
 ggsave(plot = plotted, filename = "plotQuantile.png", width = 4, height = 4, units = "in", dpi = 300)
 
+q()
 
 ## ROC calculation and Data Visualization: ROC plots
 
 ## run a regression model
 
-%%R
+R
 library(plotROC)
 library(ggplot2)
 install.packages("e1071")
@@ -180,7 +183,7 @@ meanControls <- mean(data$SCORE[data$CASE == 0])
 sdControls <- sd(data$SCORE[data$CASE == 0])
 data$zSCORE <- (data$SCORE - meanControls)/sdControls
 
-## Let's build our model
+## build model
 
 Model <- glm(CASE ~ SCORE, data = data, family = 'binomial')
 
@@ -199,10 +202,12 @@ ggsave(plot = overlayedRocs, filename = "plotRoc.png", width = 8, height = 5, un
 confMat <- confusionMatrix(data = as.factor(data$predicted), reference = as.factor(data$reported), positive = "DISEASE")
 confMat
 
+q()
+
 ## Density Plot
 ## make a KDE plot to observe how well our model can cluster Parkinson disease cases versus controls
 
-%%R
+R
 
 temp_data <- read.table("GRS_PD_test.profile", header = T)
 temp_covs <- read.table("test_covs.txt", header = T)
@@ -225,5 +230,5 @@ data$reported <- ifelse(data$CASE == 1, "DISEASE","CONTROL")
 densPlot <- ggplot(data, aes(probDisease, fill = reported, color = reported)) + geom_density(alpha = 0.5) + theme_bw()
 ggsave(plot = densPlot, filename = "plotDensity.png", width = 8, height = 5, units = "in", dpi = 300)
 
-
+q()
 
