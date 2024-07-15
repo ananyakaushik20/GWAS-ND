@@ -1,7 +1,7 @@
 
 ###GRS versus disease status
 
-R
+Rscript - <<EOF
 
 # Download the necessary packages 
 if (!require(tidyverse)) install.packages('tidyr')
@@ -22,7 +22,7 @@ library(ggplot2)
 library(plotROC)
 library(caret)
 
-q()
+EOF
 
 
 ### Calculate Score in cases versus controls ## toPRS_training_Alzheimer* contain Parkinson disease inviduals for which I have extracted AD related variants
@@ -33,7 +33,7 @@ head test_covs.txt
 
 ### Normalize Score to Z-Score 
 
-R
+Rscript - <<EOF
 temp_data <- read.table("GRS_PD_test.profile", header = T) 
 temp_covs <- read.table("test_covs.txt", header = T)
 data <- merge(temp_data, temp_covs, by = "FID")
@@ -44,18 +44,18 @@ data$zSCORE <- (data$SCORE - meanControls)/sdControls
 grsTests <- glm(CASE ~ zSCORE + SEX + PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10 + AAO, family="binomial", data = data)
 summary(grsTests)
 
-R # log(OR) = beta value
+ # log(OR) = beta value
 
 OR <- exp(0.5167042)
 OR
-q()
+
 
 ## 3. GRS versus age at onset
 #explore if genetic markers are associated with an earlier age an onset in Parkinson's disease
 
 ### Extract cases and normalize scores
 
-R
+
 temp_data <- read.table("GRS_PD_test.profile", header = T)
 temp_covs <- read.table("test_covs.txt", header = T)
 data <- merge(temp_data, temp_covs, by = "FID")
@@ -66,19 +66,19 @@ sdPop <- sd(cases$SCORE)
 cases$zSCORE <- (cases$SCORE - meanPop)/sdPop
 grsTests <- lm(AAO ~ zSCORE + SEX + PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + PC9 + PC10, data = cases)
 summary(grsTests)
-q()
+EOF
 
 ## 4. Genetic correlations between Parkinson and Alzheimer's disease.
 
 
 ### Calculate AD genetic risk in PD cases versus controls - ## toPRS_training_Alzheimer* contain Parkinson disease inviduals for which I have extracted Alzheimer's disease related variants
-! ./plink --bfile toPRS_training_Alzheimer --score SCORE_AD.txt --out GRS_AD_test
+plink --bfile toPRS_training_Alzheimer --score SCORE_AD.txt --out GRS_AD_test
 
-! head GRS_AD_test.profile
+head GRS_AD_test.profile
 
 ### Normalize Score to Z-Score 
 
-R
+Rscript - <<EOF
 
 temp_data <- read.table("GRS_AD_test.profile", header = T) 
 temp_covs <- read.table("test_covs.txt", header = T)
@@ -93,13 +93,10 @@ summary(grsTests)
 OR <- exp(8.756e-02)
 OR
 
-q()
-
 ## Create Violin Plot
 
 ##make a violin plot assigning my variables case-control
 
-R
 
 temp_data <- read.table("GRS_PD_test.profile", header = T)
 temp_covs <- read.table("test_covs.txt", header = T)
@@ -118,13 +115,9 @@ p2 <- p+geom_boxplot(width=0.4, fill="white" ) + theme_minimal()
 p2 + scale_fill_manual(values=c("lightblue", "orange")) + theme_bw() + ylab("PD GRS (Z-transformed)") +xlab("") + theme(legend.position = "none")
 ggsave("PD_GRS.jpeg", dpi = 600, units = "in", height = 6, width = 6)
 
-q()
-
 ## Create quantile plots
 
 ## Make quantiles
-
-R
 
 temp_data <- read.table("GRS_PD_test.profile", header = T)
 temp_covs <- read.table("test_covs.txt", header = T)
@@ -163,13 +156,11 @@ to_plot$high <- to_plot$BETA + (1.96*to_plot$SE)
 plotted <- ggplot(to_plot, aes(QUANTILE, BETA)) + geom_pointrange(aes(ymin = low, ymax = high))
 ggsave(plot = plotted, filename = "plotQuantile.png", width = 4, height = 4, units = "in", dpi = 300)
 
-q()
-
 ## ROC calculation and Data Visualization: ROC plots
 
 ## run a regression model
 
-R
+
 library(plotROC)
 library(ggplot2)
 install.packages("e1071")
@@ -202,12 +193,12 @@ ggsave(plot = overlayedRocs, filename = "plotRoc.png", width = 8, height = 5, un
 confMat <- confusionMatrix(data = as.factor(data$predicted), reference = as.factor(data$reported), positive = "DISEASE")
 confMat
 
-q()
+
 
 ## Density Plot
 ## make a KDE plot to observe how well our model can cluster Parkinson disease cases versus controls
 
-R
+
 
 temp_data <- read.table("GRS_PD_test.profile", header = T)
 temp_covs <- read.table("test_covs.txt", header = T)
@@ -230,5 +221,4 @@ data$reported <- ifelse(data$CASE == 1, "DISEASE","CONTROL")
 densPlot <- ggplot(data, aes(probDisease, fill = reported, color = reported)) + geom_density(alpha = 0.5) + theme_bw()
 ggsave(plot = densPlot, filename = "plotDensity.png", width = 8, height = 5, units = "in", dpi = 300)
 
-q()
-
+EOF
