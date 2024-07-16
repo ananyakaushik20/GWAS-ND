@@ -28,7 +28,7 @@ toPRS_training_Alzheimer.bim, toPRS_training_Alzheimer.fam, toPRS_training_Alzhe
 - Score file for Parkinson disease - SCORE_PD.txt
 - Score file for Alzheimer’s disease- SCORE_AD.txt
 
-Inventory of scripts:
+### Inventory of scripts:
 
 ○ Genotyping_QC.sh - Genotyping QC
 ○ gwas.sh - GWAS analyses
