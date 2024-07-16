@@ -25,9 +25,6 @@ toPRS_training_Parkinson.bim, toPRS_training_Parkinson.fam, toPRS_training_Parki
 loci associated with Alzheimer’s disease. These data will be used to explore a potential genetic correlation between both diseases AD and PD:
 toPRS_training_Alzheimer.bim, toPRS_training_Alzheimer.fam, toPRS_training_Alzheimer.bed
 
-- Score file for Parkinson's disease - SCORE_PD.txt
-- Score file for Alzheimer’s disease- SCORE_AD.txt
-
 ### Inventory of scripts:
 
 - Genotyping_QC.sh - Genotyping QC
