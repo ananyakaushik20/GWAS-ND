@@ -30,6 +30,6 @@ toPRS_training_Alzheimer.bim, toPRS_training_Alzheimer.fam, toPRS_training_Alzhe
 
 ### Inventory of scripts:
 
-○ Genotyping_QC.sh - Genotyping QC
-○ gwas.sh - GWAS analyses
-○ PRS.sh - PRS analyses
+- Genotyping_QC.sh - Genotyping QC
+- gwas.sh - GWAS analyses
+- PRS.sh - PRS analyses
