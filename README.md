@@ -1,4 +1,4 @@
-# GWAS-ND-Training
+# GWAS For Neurodegenerative Disease
 
 This directory contains demo data from the GenoML project at the Center for Alzheimer’s and Related Dementias (CARD) and Data Tecnica International LLC (DTI). This data is simulated data for Parkinson's disease case and control clinical-demographic datasets and Alzheimer’s disease publicly available summary statistics. 
 
